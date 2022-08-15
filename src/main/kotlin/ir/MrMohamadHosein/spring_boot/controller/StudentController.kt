@@ -6,7 +6,6 @@ import ir.MrMohamadHosein.spring_boot.repository.StudentRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
 
 @RestController
 class StudentController {
@@ -26,40 +25,43 @@ class StudentController {
     }
 
     @PostMapping("/student")
-    fun insertStudent(@RequestBody data: String): ResponseEntity<String> {
+    fun insertStudent(@RequestBody data: String) {
 
         val gson = Gson()
         val newStudent = gson.fromJson<Student>(data, Student::class.java)
 
         studentRepository.save(newStudent)
 
-        return ResponseEntity.ok("success")
     }
 
 
-    @PutMapping("/student/updating{name}")
+    @PutMapping("/student/updating{id}")
     fun updateStudent(
-            @PathVariable("name") name: String,
-            @RequestBody data: String
-    ): ResponseEntity<String> {
+        @PathVariable("id") id: Long,
+        @RequestBody data: String
+    ) {
 
         val gson = Gson()
         val newStudent: Student = gson.fromJson(data, Student::class.java)
 
-        studentRepository.save(newStudent)
+        val oldStudent: Student = studentRepository.findById(id).get()
 
-        System.out.println(name)
+        System.out.println("new Student :"+newStudent)
+        System.out.println("old Student :" +oldStudent)
 
-        return ResponseEntity.ok("success")
+        oldStudent.name = newStudent.name
+        oldStudent.course = newStudent.course
+        oldStudent.score = newStudent.score
+
+        studentRepository.save(oldStudent)
+
+
     }
 
 
-    @DeleteMapping("/student/deleting{name}")
-    fun deleteStudent( @PathVariable("name") name:String ) : ResponseEntity<String> {
-
-        studentRepository.deleteById(name)
-        return ResponseEntity.ok(name)
-
+    @DeleteMapping("/student/deleting{id}")
+    fun deleteStudent(@PathVariable("id") id: Long) {
+        studentRepository.deleteById(id)
     }
 
 
